@@ -25,6 +25,7 @@ server.get('/cursos/:index', (req, res)=>{
 
 });
 
+/// pesquisar post, request, push e .body
 
 server.post(('/cursos'), (req, res)=>{
     const { name } = req.body;
