@@ -12,6 +12,27 @@ server.use(express.json())
 
 const cursos = ['NodeJS', 'JavaScript','PHP', 'React Native'];
 
+// Middleware global
+server.use((req, res, next)=>{
+    console.log(`Requisição chamada ${req.url}`)
+
+    return next();
+})
+
+function checkCurso(req, res, next){
+    if(!req.body.name){
+        return res.status(400).json({error: "Nome do curso é obrigatorio"})
+    }
+    return next()
+}
+
+function checkIndexCurso(req, res, next){
+    const curso = cursos[req.params.index]
+    if(!curso){
+        return res.status(400).json({error: "O curso não existe"})
+    }
+    return next()
+}
 
 // Recuperando os dados de todos os cursos
 server.get('/cursos', (req, res)=>{
@@ -20,7 +41,7 @@ server.get('/cursos', (req, res)=>{
 
 
 // Recuperando os dados de um curso
-server.get('/cursos/:index', (req, res)=>{
+server.get('/cursos/:index', checkIndexCurso,(req, res)=>{
 
     const {index} = req.params;
 
@@ -29,9 +50,8 @@ server.get('/cursos/:index', (req, res)=>{
 });
 
 /// pesquisar post, request, push e .body
-
 // Adicionando um curso
-server.post(('/cursos'), (req, res)=>{
+server.post(('/cursos'), checkCurso,(req, res)=>{
     const { name } = req.body;
     cursos.push(name);
 
@@ -39,7 +59,7 @@ server.post(('/cursos'), (req, res)=>{
 });
 
 // Atualizando um curso
-server.put('/cursos/:index', (req, res)=>{
+server.put('/cursos/:index', checkCurso, checkIndexCurso, (req, res)=>{
     const { index } = req.params;
     const { name } = req.body;
 
@@ -49,7 +69,7 @@ server.put('/cursos/:index', (req, res)=>{
 });
 
 // Excluindo algum curso
-server.delete('/cursos/:index', (req, res)=>{
+server.delete('/cursos/:index', checkIndexCurso, (req, res)=>{
     const {index} = req.params;
 
     cursos.splice(index, 1)
